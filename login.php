@@ -1,38 +1,28 @@
 <?php
    session_start();
-   if(isset($_SESSION['unique_id'])){
-    header("location: users.php");
+   include_once "config.php";
+   $email = mysqli_real_escape_string($conn, $_POST['email']);
+   $password = mysqli_real_escape_string($conn, $_POST['password']);
+
+   if(!empty($email) && !empty($password)){
+        //let's check user entered email & password matched to database any table row email and password
+        $sql = mysqli_query($conn, "SELECT *FROM users WHERE email ='{$email}' AND password = '{$password}'");
+        if(mysqli_num_rows($sql)>0){ //if users credential matched
+                $row =mysqli_fetch_assoc($sql);
+                $status = "Active now";
+
+                $sql2 = mysqli_query($conn, "UPDATE users SET status = '{$status}' WHERE unique_id = {$row['unique_id']}");
+                if($sql2){
+                    $_SESSION['unique_id'] = $row['unique_id']; //using this session we used user unique_id in other php file
+                    echo "success";
+                }
+                
+
+        }else{
+            echo "Email or Password is incorrect";
+        }
+
+   }else{
+    echo "All input fields are required";
    }
 ?>
-
-
-<?php include_once "header.php"; ?>
-<body>
-    <div class="wrapper">
-        <section class="form login">
-            <header>Realtime Chat App</header>
-            <form action="#">
-                <div class="error-txt"></div>
-                    <div class="field input">
-                        <label for="">Email</label>
-                        <input type="email" name="email" placeholder="Enter your Email">
-                    </div>
-                    <div class="field input">
-                        <label for="">Password</label>
-                        <input type="password" name="password" placeholder="Password">
-                        <i class="fa-solid fa-eye-slash"></i>
-                    </div>
-                  
-                    <div class="field button">
-                        <input type="submit" value="Continue to Chat">
-                    </div>
-            </form>
-            <div class="link">Not yet signed up ? <a href="index.php">SignUp Now</a></div>
-        </section>
-    </div>
-    <script src="javascript/pass-show-hide.js"></script>
-    <script src="javascript/login.js"></script>
-    
-
-</body>
-</html>
